@@ -202,12 +202,26 @@ function speak(num, side) {
 }
 
 function speakCloud(text, key) {
-  fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+key, {
+  // ดึงรายชื่อเสียง th-TH ที่มีจริงก่อน แล้วค่อยเลือก
+  fetch('https://texttospeech.googleapis.com/v1/voices?languageCode=th-TH&key='+key)
+  .then(r=>r.json())
+  .then(data=>{
+    const voices = data.voices || [];
+    // เลือกเสียงผู้หญิงถ้ามี ไม่งั้นเอาตัวแรก
+    const female = voices.find(v=>v.ssmlGender==='FEMALE') || voices[0];
+    const voiceName = female ? female.name : 'th-TH-Standard-A';
+    return synthesize(text, key, voiceName);
+  })
+  .catch(()=>speakOffline(text));
+}
+
+function synthesize(text, key, voiceName) {
+  return fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+key, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       input:{ text:text },
-      voice:{ languageCode:'th-TH', name:'th-TH-Wavenet-C' },
+      voice:{ languageCode:'th-TH', name:voiceName },
       audioConfig:{ audioEncoding:'MP3', speakingRate:0.9 }
     })
   })
