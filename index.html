@@ -218,8 +218,29 @@
   }
   updateBadges();
 
+  // Audio object สำหรับ preload (iOS ต้องการ unlock ก่อน)
+  let audioCtx = null;
+  let audioUnlocked = false;
+
+  // Unlock audio context เมื่อผู้ใช้แตะ/คลิกครั้งแรก (จำเป็นสำหรับ iOS)
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    // สร้าง AudioContext และเล่นเสียงเงียบๆ เพื่อ unlock
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const buf = audioCtx.createBuffer(1, 1, 22050);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start(0);
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch(e) {}
+  }
+
   // ===== SPEAK =====
   function speak(num, side) {
+    unlockAudio();
     const digits = String(num).split('').join(' ');
     const text = 'ขอเรียกคิวหมายเลข ' + digits + ' ' + speakSuffix[side];
 
@@ -230,12 +251,18 @@
     }
   }
 
-  // Online: Google Translate TTS
+  // Online: Google Translate TTS ผ่าน fetch → blob → play (ผ่าน iOS)
   function speakOnline(text) {
     const url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q=' + encodeURIComponent(text);
-    const audio = new Audio(url);
-    audio.onerror = () => speakOffline(text); // fallback ถ้า Google block
-    audio.play().catch(() => speakOffline(text));
+    fetch(url)
+      .then(res => res.blob())
+      .then(blob => {
+        const blobUrl = URL.createObjectURL(blob);
+        const audio = new Audio(blobUrl);
+        audio.onended = () => URL.revokeObjectURL(blobUrl);
+        return audio.play();
+      })
+      .catch(() => speakOffline(text)); // fallback ถ้า fetch ไม่ผ่าน
   }
 
   // Offline: Web Speech API (เสียงในเครื่อง)
@@ -243,8 +270,6 @@
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-
-    // เลือก Thai voice ถ้ามี
     const voices = window.speechSynthesis.getVoices();
     const thaiVoice = voices.find(v => v.lang.startsWith('th'));
     if (thaiVoice) u.voice = thaiVoice;
