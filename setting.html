@@ -237,6 +237,19 @@
 </div>
 
 <!-- SAVE -->
+
+  <div class="card">
+    <div class="card-title">🔑 Google TTS API Key</div>
+    <div class="field">
+      <label>API Key <span class="hint">(เก็บในเครื่องนี้เท่านั้น ไม่ได้ upload ขึ้น GitHub)</span></label>
+      <div class="field-row">
+        <input type="password" id="api-key-input" placeholder="AIzaSy..." autocomplete="off">
+        <button onclick="toggleKeyVisible()" style="padding:9px 12px;border:1px solid #2e4d30;border-radius:6px;background:#0d2210;color:#81c784;cursor:pointer;font-size:13px;white-space:nowrap;">👁 แสดง</button>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:4px;">ยังไม่มี key? <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#4caf50;">สร้างที่ Google Cloud Console</a></p>
+  </div>
+
 <button class="btn-save" onclick="saveAll()">💾 บันทึกการตั้งค่า</button>
 <button class="btn-reset-cfg" onclick="resetAll()">↩ คืนค่าเริ่มต้น</button>
 
@@ -278,6 +291,15 @@ function fillForm() {
 }
 fillForm();
 
+// Load API key
+document.getElementById('api-key-input').value = localStorage.getItem('googleTtsKey') || '';
+
+function toggleKeyVisible() {
+  const inp = document.getElementById('api-key-input');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+
 function switchSide(side) {
   document.querySelectorAll('.side-tab').forEach((t,i)=>t.classList.toggle('active',i===(side==='l'?0:1)));
   document.querySelectorAll('.side-panel').forEach(p=>p.classList.remove('active'));
@@ -306,6 +328,11 @@ function customSwatch(which, side, val) {
 }
 
 function saveAll() {
+  // Save API key
+  const key = document.getElementById('api-key-input').value.trim();
+  if (key) localStorage.setItem('googleTtsKey', key);
+  else localStorage.removeItem('googleTtsKey');
+
   // Logo
   if (pendingLogo) {
     cfg.l.logoSrc = pendingLogo;
@@ -337,6 +364,15 @@ function resetAll() {
     document.getElementById('logo-file-'+s).value='';
   });
   fillForm();
+
+// Load API key
+document.getElementById('api-key-input').value = localStorage.getItem('googleTtsKey') || '';
+
+function toggleKeyVisible() {
+  const inp = document.getElementById('api-key-input');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
   showToast('✓ คืนค่าเริ่มต้นแล้ว');
 }
 
