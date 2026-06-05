@@ -178,20 +178,41 @@ function unlockAudio() {
   } catch(e) {}
 }
 
+const GOOGLE_TTS_KEY = 'AIzaSyABTJ33BcsI_cEMLfR458jyFEil6i5BHt8';
+
 function speak(num, side) {
   unlockAudio();
   const digits = String(num).split('').join(' ');
   const text = 'ขอเรียกคิวหมายเลข '+digits+' '+speakSuffix[side];
   if (isOnline) {
-    const url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q='+encodeURIComponent(text);
-    fetch(url).then(r=>r.blob()).then(blob=>{
-      const burl = URL.createObjectURL(blob);
-      const audio = new Audio(burl);
-      audio.onended = ()=>URL.revokeObjectURL(burl);
-      return audio.play();
-    }).catch(()=>speakOffline(text));
-  } else { speakOffline(text); }
+    speakCloud(text);
+  } else {
+    speakOffline(text);
+  }
 }
+
+// Google Cloud Text-to-Speech API
+function speakCloud(text) {
+  const url = 'https://texttospeech.googleapis.com/v1/text:synthesize?key=' + GOOGLE_TTS_KEY;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      input: { text: text },
+      voice: { languageCode: 'th-TH', name: 'th-TH-Neural2-C' },
+      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.9 }
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.audioContent) { speakOffline(text); return; }
+    const audio = new Audio('data:audio/mp3;base64,' + data.audioContent);
+    audio.play().catch(() => speakOffline(text));
+  })
+  .catch(() => speakOffline(text));
+}
+
+// Fallback: เสียงในเครื่อง (ออฟไลน์)
 function speakOffline(text) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
