@@ -112,7 +112,7 @@
     <div class="hospital-name" id="hosp-name-l"></div>
     <div class="divider"></div>
     <div class="now-label"    id="now-label-l">กรุณารอเรียกคิว</div>
-    <div class="queue-number" id="queue-l">—</div>
+    <div class="queue-number" id="queue-l">-</div>
     <div class="please-text"  id="please-l"></div>
     <div class="voice-badge"  id="badge-l">กำลังตรวจสอบ...</div>
   </div>
@@ -131,7 +131,7 @@
     <div class="hospital-name" id="hosp-name-r"></div>
     <div class="divider"></div>
     <div class="now-label"    id="now-label-r">กรุณารอเรียกคิว</div>
-    <div class="queue-number" id="queue-r">—</div>
+    <div class="queue-number" id="queue-r">-</div>
     <div class="please-text"  id="please-r"></div>
     <div class="voice-badge"  id="badge-r">กำลังตรวจสอบ...</div>
   </div>
@@ -149,7 +149,7 @@
 </div>
 
 <script>
-const 1FjNpV4JZYJysbZ7BzAJ10BPIEpLNh8p_PajJYB6Sd5g = '1FjNpV4JZYJysbZ7BzAJ10BPIEpLNh8p_PajJYB6Sd5g';
+const SHEETS_ID = '1FjNpV4JZYJysbZ7BzAJ10BPIEpLNh8p_PajJYB6Sd5g';
 
 const defaults = {
   l:{ hospName:'โรงพยาบาลส่งเสริมสุขภาพตำบล\nบ้านละลมพนู', hospSize:20, labelText:'คิวหมายเลข', labelSize:24, queueSize:160, pleaseText:'กรุณาซักประวัติ', pleaseSize:28, bgTop:'#0a2e12', bgBot:'#1a5c2a' },
@@ -169,7 +169,7 @@ async function loadFromSheets() {
   if (!key) { applyConfig('l'); applyConfig('r'); hideLoading(); return; }
 
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${1FjNpV4JZYJysbZ7BzAJ10BPIEpLNh8p_PajJYB6Sd5g}/values/Sheet1!A1:C20?key=${key}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/Sheet1!A1:C20?key=${key}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data.values) {
@@ -212,9 +212,9 @@ window.addEventListener('offline', ()=>{ isOnline=false; updateBadges(); });
 
 function updateBadges() {
   const key = getTtsKey();
-  const txt = !isOnline ? (hasThaiVoice?'🔇 ออฟไลน์':'⚠️ ออฟไลน์')
-              : !key ? '⚠️ ไม่มี API Key'
-              : '🌐 ออนไลน์';
+  const txt = !isOnline ? (hasThaiVoice?'ออฟไลน์':'ออฟไลน์')
+              : !key ? 'ไม่มี API Key'
+              : 'ออนไลน์';
   ['l','r'].forEach(s => document.getElementById('badge-'+s).textContent = txt);
 }
 function detectThaiVoice() {
@@ -281,7 +281,7 @@ function updateDisplay(side, animate) {
   const qEl=document.getElementById('queue-'+side);
   const lEl=document.getElementById('now-label-'+side);
   const pEl=document.getElementById('please-'+side);
-  if (num===0) { qEl.textContent='—'; lEl.textContent='กรุณารอเรียกคิว'; pEl.style.opacity='0'; }
+  if (num===0) { qEl.textContent='-'; lEl.textContent='กรุณารอเรียกคิว'; pEl.style.opacity='0'; }
   else {
     if(animate){ qEl.classList.add('flash'); setTimeout(()=>{ qEl.textContent=num; qEl.classList.remove('flash'); },150); }
     else { qEl.textContent=num; }
