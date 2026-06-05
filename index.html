@@ -199,8 +199,8 @@
 
   function updateBadges() {
     const txt = isOnline
-      ? '🌐 ออนไลน์ (Google TTS)'
-      : (hasThaiVoice ? '🔇 ออฟไลน์ (เสียงไทย)' : '⚠️ ออฟไลน์ (ไม่พบเสียงไทย)');
+      ? '🌐 ออนไลน์'
+      : (hasThaiVoice ? '🔇 ออฟไลน์' : '⚠️ ออฟไลน์ (ไม่พบเสียงไทย)');
     document.getElementById('badge-l').textContent = txt;
     document.getElementById('badge-r').textContent = txt;
   }
