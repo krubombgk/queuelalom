@@ -120,9 +120,8 @@
 <!-- MODE BAR -->
 <div class="mode-bar">
   <button class="mode-btn" id="btn-mode-1" title="กด 1">ซักประวัติ</button>
-  <button class="mode-btn active" id="btn-mode-3" title="กด 3">ทั้งสองจอ</button>
-  <button class="mode-btn" id="btn-mode-2" title="กด 2">ห้องตรวจ</button>
-  <span class="mode-hint">1 / 2 / 3</span>
+  <button class="mode-btn active" id="btn-mode-2" title="กด 2">ทั้งสองจอ</button>
+  <button class="mode-btn" id="btn-mode-3" title="กด 3">ห้องตรวจ</button>
 </div>
 
 <script type="module">
@@ -163,18 +162,18 @@ function setMode(m) {
   pL.style.borderRight = (m === 'left') ? 'none' : '3px solid #060f07';
 
   document.getElementById('btn-mode-1').classList.toggle('active', m==='left');
-  document.getElementById('btn-mode-2').classList.toggle('active', m==='right');
-  document.getElementById('btn-mode-3').classList.toggle('active', m==='both');
+  document.getElementById('btn-mode-2').classList.toggle('active', m==='both');
+  document.getElementById('btn-mode-3').classList.toggle('active', m==='right');
 }
 
 document.getElementById('btn-mode-1').addEventListener('click', () => setMode('left'));
-document.getElementById('btn-mode-2').addEventListener('click', () => setMode('right'));
-document.getElementById('btn-mode-3').addEventListener('click', () => setMode('both'));
+document.getElementById('btn-mode-2').addEventListener('click', () => setMode('both'));
+document.getElementById('btn-mode-3').addEventListener('click', () => setMode('right'));
 
 document.addEventListener('keydown', e => {
   if (e.key === '1') setMode('left');
-  else if (e.key === '2') setMode('right');
-  else if (e.key === '3' || e.key === '0') setMode('both');
+  else if (e.key === '2') setMode('both');
+  else if (e.key === '3') setMode('right');
 });
 
 setMode(mode);
